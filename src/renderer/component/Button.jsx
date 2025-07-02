@@ -30,7 +30,7 @@ const ButtonStyled = styled.button`
   }
 `;
 
-export default function     Button({ children, onClick, disabled }) {
+export default function Button({ children, onClick, disabled }) {
   return (
     <ButtonStyled onClick={onClick} disabled={disabled}>
       {children}

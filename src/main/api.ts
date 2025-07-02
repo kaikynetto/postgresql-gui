@@ -344,9 +344,87 @@ export function startApiServer() {
     }
   });
 
+  app.post('/api/getTableInfo', async (req, res) => {
+    const { connectionString, schema, table } = req.body;
 
+    if (!connectionString || !schema || !table) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
 
+    const pool = new Pool({ connectionString });
 
+    try {
+      const query = `
+        SELECT
+          c.relkind AS type,
+          pg_relation_size(c.oid) AS total_size,
+          pg_total_relation_size(c.oid) AS total_size_with_indexes,
+          pg_total_relation_size(c.oid) - pg_relation_size(c.oid) AS indexes_size,
+          COALESCE(s.n_live_tup, 0) AS estimated_rows
+        FROM pg_class c
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        LEFT JOIN pg_stat_all_tables s ON s.relid = c.oid
+        WHERE n.nspname = $1 AND c.relname = $2;
+      `;
+
+      const result = await pool.query(query, [schema, table]);
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({ error: 'Table not found' });
+      }
+
+      const row = result.rows[0];
+
+      const typeMap = {
+        r: 'table',
+        i: 'index',
+        S: 'sequence',
+        t: 'toast table',
+        v: 'view',
+        m: 'materialized view',
+        c: 'composite type',
+        f: 'foreign table',
+        p: 'partitioned table',
+      };
+
+      res.json({
+        type: typeMap[row.type] || row.type,
+        estimatedRowsCount: Math.floor(row.estimated_rows),
+        totalSizeBytes: parseInt(row.total_size_with_indexes, 10),
+        sizeDetails: {
+          tableSize: parseInt(row.total_size, 10),
+          indexesSize: parseInt(row.indexes_size, 10),
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    } finally {
+      await pool.end();
+    }
+  });
+
+  app.post('/api/runQuery', async (req, res) => {
+    const { query, connectionString } = req.body
+
+    if (!query || !connectionString) {
+      return res.status(400).json({ error: 'Missing required fields' })
+    }
+
+    const pool = new Pool({ connectionString })
+
+    try {
+      const result = await pool.query(query)
+      res.json({
+        rowCount: result.rowCount,
+        rows: result.rows,
+        fields: result.fields.map(f => f.name),
+      })
+    } catch (error) {
+      res.status(400).json({ error: error.message })
+    } finally {
+      await pool.end()
+    }
+  })
 
   app.listen(port, () => {
     console.log(`API rodando em http://localhost:${port}`);

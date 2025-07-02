@@ -3,6 +3,8 @@ import { FaChevronDown, FaChevronRight, FaDatabase, FaTable } from 'react-icons/
 import styled from 'styled-components'
 import Structure from '../component/DB/Structure'
 import ContentTable from '../component/DB/Content'
+import Info from '../component/DB/Info'
+import Query from '../component/DB/Query'
 
 export default function DB() {
   const [schemas, setSchemas] = useState({})
@@ -131,12 +133,12 @@ export default function DB() {
               )}
               {activeTab === 'info' && (
                 <>
-                  <p>INFO</p>
+                  <Info table={selectedTable}/>
                 </>
               )}
               {activeTab === 'query' && (
                 <>
-                  <p>QUERY</p>
+                  <Query table={selectedTable}/>
                 </>
               )}
             </>
