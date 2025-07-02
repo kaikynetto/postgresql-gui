@@ -259,6 +259,54 @@ export function startApiServer() {
     }
   });
 
+  app.post('/api/getTableValues', async (req, res) => {
+    const { connectionString, schema, table } = req.body;
+
+    if (!connectionString || !schema || !table) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const pool = new Pool({ connectionString });
+
+    try {
+      const result = await pool.query(`SELECT * FROM "${schema}"."${table}"`);
+      res.json(result.rows);
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
+    } finally {
+      await pool.end();
+    }
+  });
+
+ app.post('/api/deleteRow', async (req, res) => {
+  const { connectionString, schema, table, primaryKey, primaryKeyValue } = req.body;
+
+  if (!connectionString || !schema || !table || !primaryKey || primaryKeyValue === undefined) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const pool = new Pool({ connectionString });
+
+  try {
+    await pool.query('BEGIN');
+
+    const query = `
+      DELETE FROM "${schema}"."${table}"
+      WHERE "${primaryKey}" = $1
+    `;
+    await pool.query(query, [primaryKeyValue]);
+
+    await pool.query('COMMIT');
+    res.json({ message: 'Row deleted successfully' });
+  } catch (error) {
+    await pool.query('ROLLBACK');
+    res.status(500).json({ error: (error as Error).message });
+  } finally {
+    await pool.end();
+  }
+});
+
+
 
 
 

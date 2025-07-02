@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { FaChevronDown, FaChevronRight, FaDatabase, FaTable } from 'react-icons/fa'
 import styled from 'styled-components'
 import Structure from '../component/DB/Structure'
+import ContentTable from '../component/DB/Content'
 
 export default function DB() {
   const [schemas, setSchemas] = useState({})
@@ -125,7 +126,7 @@ export default function DB() {
               )}
               {activeTab === 'content' && (
                 <>
-                  <p>CONTENT</p>
+                  <ContentTable table={selectedTable}/>
                 </>
               )}
               {activeTab === 'info' && (
