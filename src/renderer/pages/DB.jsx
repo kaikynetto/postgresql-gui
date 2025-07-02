@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { FaChevronDown, FaChevronRight, FaDatabase, FaTable } from 'react-icons/fa'
 import styled from 'styled-components'
+import Structure from '../component/DB/Structure'
 
 export default function DB() {
   const [schemas, setSchemas] = useState({})
@@ -68,7 +69,7 @@ export default function DB() {
   function toggleTable(schema, table) {
     const fullTableName = `${schema}."${table}"`
     setSelectedTable(fullTableName)
-    setSelectedTable('structure')
+    setActiveTab('structure')
   }
 
   return (
@@ -115,24 +116,32 @@ export default function DB() {
         </Tabs>
 
         <MainContentArea>
-          {activeTab === 'structure' && (
+          {selectedTable != "" ? (
             <>
-              <p>STRUCTURE</p>
+              {activeTab === 'structure' && (
+                <>
+                  <Structure table={selectedTable}/>
+                </>
+              )}
+              {activeTab === 'content' && (
+                <>
+                  <p>CONTENT</p>
+                </>
+              )}
+              {activeTab === 'info' && (
+                <>
+                  <p>INFO</p>
+                </>
+              )}
+              {activeTab === 'query' && (
+                <>
+                  <p>QUERY</p>
+                </>
+              )}
             </>
-          )}
-          {activeTab === 'content' && (
+          ) : (
             <>
-              <p>CONTENT</p>
-            </>
-          )}
-          {activeTab === 'info' && (
-            <>
-              <p>INFO</p>
-            </>
-          )}
-          {activeTab === 'query' && (
-            <>
-              <p>QUERY</p>
+              <Heading>Choose a table</Heading>
             </>
           )}
         </MainContentArea>
@@ -241,3 +250,6 @@ const MainContentArea = styled.div`
   flex-grow: 1;
 `
 
+const Heading = styled.h1`
+  color: white;
+`;
