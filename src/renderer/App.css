@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  color: white;
+  background: #292929;
+  font-family: 'Inter', sans-serif;
+  overflow-y: auto;
+}
+
+
+li {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  height: fit-content;
+  width: fit-content;
+  margin: 10px;
+}
+
+a:hover {
+  opacity: 1;
+  text-decoration: none;
+}
+
+.Hello {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}
